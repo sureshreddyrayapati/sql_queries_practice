@@ -1,4 +1,4 @@
-CREATE TABLE Offers (
+CREATE TABLE Officers (
     Id INT PRIMARY KEY,
     Name VARCHAR(50),
     Department VARCHAR(50),
@@ -7,8 +7,9 @@ CREATE TABLE Offers (
     Email VARCHAR(100)
 );
 
+EXEC sp_rename 'Officers', 'Officers';
 
-INSERT INTO Offers(Id, Name, Department, Salary, HireDate, Email) VALUES
+INSERT INTO Officers(Id, Name, Department, Salary, HireDate, Email) VALUES
 (1, 'Amit', 'IT', 60000, '2022-01-10', 'amit@gmail.com'),
 (2, 'Ravi', 'HR', 45000, '2021-03-15', 'ravi@gmail.com'),
 (3, 'Sita', 'IT', 70000, '2020-07-20', 'sita@gmail.com'),
@@ -30,24 +31,24 @@ INSERT INTO Offers(Id, Name, Department, Salary, HireDate, Email) VALUES
 (18, 'Kavya', 'Finance', 47000, '2023-06-06', 'kavya@gmail.com'),
 (19, 'Ramesh', 'Sales', 68000, '2021-02-02', 'ramesh@gmail.com'),
 (20, 'Asha', 'HR', 53000, '2020-04-04', 'asha@gmail.com');
---total Offers in each group
-Select Department, count(*) As TotalOffers
-from Offers
+--total Officers in each group
+Select Department, count(*) As TotalOfficers
+from Officers
 group by Department;
 
 
-select * from Offers;
---Departments with >5 Offers
+select * from Officers;
+--Departments with >5 Officers
 
-select Department, count(*) As TotalOffers
-from Offers
+select Department, count(*) As TotalOfficers
+from Officers
 group by Department
 having count(*)>5;
 
---High salary Offers per department
+--High salary Officers per department
 
 select Department, count(*) As TotalEmployes
-from Offers
+from Officers
 where Salary>50000
 group by Department
 having count(*)>2;
@@ -55,8 +56,8 @@ having count(*)>2;
 --2nd hightst salary
 
 select e1.Department, max(e1.Salary) As SecondHighestSalary
-from Offers e1
-where Salary<(Select max(Salary) from Offers e2 where e2.Department=e1.Department)
+from Officers e1
+where Salary<(Select max(Salary) from Officers e2 where e2.Department=e1.Department)
 group by e1.Department;
 
 
@@ -64,28 +65,28 @@ select Department, Salary
 from(
     Select Department,Salary,DENSE_RANK() 
     OVER(PARTITION BY Department order by Salary DESC) as  rnk
-    from Offers) temp
+    from Officers) temp
 where rnk=2;
---Offers earning more than their department average
+--Officers earning more than their department average
 
 select Name,Department, Salary
-from Offers e1
-where Salary>(select Avg(Salary) from Offers e2 where e2.Department=e1.Department);
+from Officers e1
+where Salary>(select Avg(Salary) from Officers e2 where e2.Department=e1.Department);
 
 select Name,Department, Salary
 from(select *, AVG(Salary) over( partition by Department ) as Avgsal
-    from Offers) t
+    from Officers) t
 
 where Salary>Avgsal;
 
 
 
 
---Offers who earn the highest salary in their department
+--Officers who earn the highest salary in their department
 SELECT Department, Salary
  from(select Department, Salary, DENSE_RANK()
       over(partition by Department order by Salary DESC) as rak
-      from Offers
+      from Officers
       ) t
 
 where rak=1;
@@ -95,11 +96,15 @@ from
  (
     select Name,Department, Salary, ROW_NUMBER()
       over(partition by Department order by Salary DESC) as rak
-      from Offers) t
+      from Officers) t
 where rak<=2;
 
 
+--Employees Above Department Average
 
+select Name, Department
+from Officers o
+where Salary >(select AVG(Salary) from Officers e where e.Department=o.Department);
 
 
 
