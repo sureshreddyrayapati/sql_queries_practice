@@ -20,7 +20,6 @@ INSERT INTO Officers(Id, Name, Department, Salary, HireDate, Email) VALUES
 (8, 'Arjun', 'Sales', 48000, '2020-12-30', 'arjun@gmail.com'),
 (9, 'Meena', 'Finance', 75000, '2018-08-14', 'meena@gmail.com'),
 (10, 'Raj', 'IT', 80000, '2017-05-21', 'raj@gmail.com'),
-
 (11, 'Vikas', 'Sales', 72000, '2022-04-11', 'vikas@gmail.com'),
 (12, 'Anita', 'HR', 39000, '2023-01-19', 'anita@gmail.com'),
 (13, 'Rahul', 'Finance', 58000, '2021-07-07', 'rahul@gmail.com'),
@@ -106,5 +105,35 @@ select Name, Department
 from Officers o
 where Salary >(select AVG(Salary) from Officers e where e.Department=o.Department);
 
+--Nth hiegst
 
+select MIN(Salary) As EmployeeSal
+from(select Distinct top 3 Salary  
+    from Officers
+    Order by Salary DESC) t;
+
+Declare @N INT=3;
+select Salary 
+from(select Salary, DENSE_RANK() over(Order by Salary DESC) as rnk from Officers) t
+where rnk=@N;
+
+--Duplicate Records
+
+Select Email, count(*) As counts
+from Officers
+group by Email
+having count(*)>1;
+
+--top 2 salary of employees in each department
+
+select Name,Department , Salary
+from( select Name, Department, Salary, DENSE_RANK() over (partition by Department Order by Salary DESC) as rnk from Officers) t
+where rnk<=2;
+
+select Department,
+       avg(Salary) as AvarageSalary,
+       max(Salary) as maximumSalary,
+       min(Salary) as MinSalary
+from Officers
+group by Department;
 

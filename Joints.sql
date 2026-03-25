@@ -92,3 +92,45 @@ from Employees e
 join Employees m on e.ManagerId=m.Id
 group by m.Name
 having count(*)>=3;
+
+--Total employees in each department (with department name)
+
+Select d.DepartmentName, count(*) as TotalEmployees
+from Employees e
+right join Departments d on d.Id=e.DepartmentId
+group by d.DepartmentName;
+
+--Average salary per department
+select d.departmentName, avg(e.Salary) as AvargaeSalary
+from Employees e
+right join Departments d on d.Id=e.DepartmentId
+group by d.DepartmentName;
+
+--Departments with more than 3 employees
+select d.departmentName, count(e.Id) As TotalCount
+from Departments d
+left join Employees e on e.DepartmentId=d.Id
+group by d.DepartmentName
+having count(e.Id)>=3;
+
+--Department with highest total salary
+select TOP 1 d.departmentName , ISNull(Sum(e.Salary),0) as TotalSalary
+from Departments d
+left join Employees e on e.DepartmentId=d.Id
+group by d.DepartmentName
+order by Sum(e.Salary) DESC;
+
+--Top 1 highest paid employee per department (with name)
+select e.Name ,d.departmentName,e.Salary
+from Employees e
+left join Departments d on e.DepartmentId=d.Id
+where e.Salary =(Select Max(Salary) from Employees where DepartmentId=e.DepartmentId)
+
+--2nd highest salary
+select Name,DepartmentName,Salary
+from(
+    select e.Name ,d.DepartmentName,e.Salary, DENSE_RANK() over(partition by d.DepartmentName order by e.Salary DESC) as rnk 
+    from Employees e
+    left join Departments d on e.DepartmentId=d.Id) t
+where rnk=2;
+
